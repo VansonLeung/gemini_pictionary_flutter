@@ -58,7 +58,7 @@ import aiohttp
 async def obtain_image_and_base64():
 
     # API endpoint URL
-    url = "https://picsum.photos/200/300"
+    url = "https://picsum.photos/400/300"
 
 
     # Send GET request to the API using async/await
@@ -124,6 +124,7 @@ async def obtain_gemini_response_json_from_image_prompt(base64_image):
                         }
                         ?
                         The rule is: your description sentence should prevent using the same words as your answers.
+                        Keep the answers very easy to guess.
                         """,
                     },
                     {
@@ -351,7 +352,9 @@ def client_join(cid=None, name=None):
   return cid
 
 def client_get(cid):
-  return clients[cid]
+  if cid in clients:
+    return clients[cid]
+  return None
 
 
 
@@ -364,7 +367,8 @@ def client_leave(cid):
   if (cid == None):
     raise Exception("cid_null")
 
-  del clients[cid]
+  if cid in clients:
+    del clients[cid]
 
 
 # In[18]:

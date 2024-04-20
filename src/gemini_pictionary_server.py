@@ -171,13 +171,16 @@ async def ws_on_client_message(client, message):
                 "client": client_get(cid=str(client.id)),
             }))
 
+        await client.send(json.dumps({
+            "on": "me_joined",
+            "client": client_get(cid=str(client.id)),
+        }))
+
         await _refresh_question(client=client)
 
     
     # 2. game_leave
     elif (r_action == "game_leave"):
-        
-        client_leave(cid=str(client.id))
         
         for c in connected_clients:
             await c.send(json.dumps({
@@ -185,7 +188,14 @@ async def ws_on_client_message(client, message):
                 "client": client_get(cid=str(client.id)),
             }))
 
+        await client.send(json.dumps({
+            "on": "me_left",
+            "client": client_get(cid=str(client.id)),
+        }))
 
+        client_leave(cid=str(client.id))
+        
+        
     
     # 3. answer_submit
     elif (r_action == "answer_submit"):
@@ -200,6 +210,23 @@ async def ws_on_client_message(client, message):
 
         if (score_delta > 0):
             await _invalidate_question()
+
+            await client.send(json.dumps({
+                "on": "me_answer_success",
+                "client": client_get(cid=str(client.id)),
+                "score_delta": score_delta,
+                "r_answer": r_answer,
+            }))
+
+        else:
+
+            await client.send(json.dumps({
+                "on": "me_answer_failure",
+                "client": client_get(cid=str(client.id)),
+                "score_delta": score_delta,
+                "r_answer": r_answer,
+            }))
+
 
         
         for c in connected_clients:
